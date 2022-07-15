@@ -23,11 +23,7 @@ function [] = gsrx(varargin)
 % Input (optional):
 %   vararging   -   Name of user parameter file
 %
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-% ----------------------- DIVERSITY MODE --------------------------------%
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %Setting some display font settings.
 set(0,'defaultaxesfontsize',10);
@@ -36,7 +32,7 @@ set(0,'defaultlinelinewidth',2);
 % Clean up the environment
 close all; 
 clc;
-clearvars -EXCEPT varargin
+clearvars -except varargin
 
 % Set number format
 format ('compact');
@@ -72,30 +68,8 @@ if(~exist('ephData'))
 end
 
 % Execute acquisition if results not allready available
-
-% New code spits out multiple structs from multiple antennas finds the
-% strongest signal by looking at peakMetric and overwriting the struct
-
 if(~exist('acqData'))
-    acqData = doAcquisition(settings);
-    for i = 1:4
-        mulAntAcqData(i,:) = [acqData(i).gpsl1.channel(:).peakMetric];
-    end
-    %finds ant num with the largest peak
-    [~,index] = max(mulAntAcqData);
-    %loads largest ant peak acq data
-    for i = 1:32
-        newAcqData.gpsl1.channel(i) = acqData(index(1,i)).gpsl1.channel(i);
-    end
-    %appends antNum to the struct
-    for i = 1:32
-        newAcqData.gpsl1.channel(i).antNum = index(1,i);
-    end
-    %passes some other parameters
-    newAcqData.gpsl1.signal = acqData(1).gpsl1.signal;
-    newAcqData.gpsl1.nrObs = acqData(1).gpsl1.nrObs;
-    newAcqData.gpsl1.duration = acqData(1).gpsl1.duration;
-    acqData = newAcqData;
+    acqData = doAcquisition(settings);         
 end
 
 % Plot acquisition results

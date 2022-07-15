@@ -28,10 +28,6 @@ function acqResults = doAcquisition(allSettings)
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-% ----------------------- DIVERSITY MODE --------------------------------%
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
 % Initialise acquisition structure
 acqResults = initAcquisition(allSettings);
 
@@ -46,17 +42,10 @@ for i = 1:allSettings.sys.nrOfSignals
     signalSettings = allSettings.(signal);
     
     % Read RF Data
-    % Added new functions for channels
-    [pRfData,sampleCount] = getDataForAcquisition(signalSettings,100);
-    [pRfData2,sampleCount] = getDataForAcquisition2(signalSettings,100);  
-    [pRfData3,sampleCount] = getDataForAcquisition3(signalSettings,100);  
-    [pRfData4,sampleCount] = getDataForAcquisition4(signalSettings,100);  
+    [pRfData,sampleCount] = getDataForAcquisition(signalSettings,100);   
     
     % Execute acquisition for one signal
-    acqResults.(signal) = acquireSignal(pRfData,signalSettings);
-    acqResults(2).(signal) = acquireSignal(pRfData2,signalSettings);
-    acqResults(3).(signal) = acquireSignal(pRfData3,signalSettings);
-    acqResults(4).(signal) = acquireSignal(pRfData4,signalSettings);
+    acqResults.(signal) = acquireSignal(pRfData,signalSettings);            
     
 end
 

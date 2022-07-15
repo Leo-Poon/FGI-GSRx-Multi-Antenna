@@ -39,7 +39,7 @@ trackStartTime = now;
 disp (['   Tracking started at ', datestr(trackStartTime)]); 
 
 % Initialise tracking structure
-%updated to pass ant num
+% updated to pass ant num
 trackResults = initTracking(acqResults, allSettings); 
 
 % Let's loop over all enabled signals and open files for reading

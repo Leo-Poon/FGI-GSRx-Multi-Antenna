@@ -16,50 +16,51 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-function acqResults = doAcquisition(allSettings)
+function [tR]= GNSSCorrelation(tR, ch)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% This function acquires all enabled signals
+% Performs code and carrier correlation for GNSS data
 %
-% Inputs: 
-%   allSettings         - Receiver settings
-
+% Inputs:
+%   tR             - Results from signal tracking for one signals
+%   ch             - Channel index
+%
 % Outputs:
-%   acqResults          - Acquisition results
+%   tR             - Results from signal tracking for one signals
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-% ----------------------- DIVERSITY MODE --------------------------------%
+% Set local variables
+fid = tR.fid;
+%add new channels
+fid2 = tR.fid2;
+fid3 = tR.fid3;
+fid4 = tR.fid4;
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+loopCnt = tR.channel(ch).loopCnt;
 
-% Initialise acquisition structure
-acqResults = initAcquisition(allSettings);
+% Read RF data from file
+[tR, rawSignal] = getDataForCorrelation(fid,tR,ch);
 
-% Loop over all signals
-for i = 1:allSettings.sys.nrOfSignals
-    
-    % Temporary variables
-    signal = allSettings.sys.enabledSignals{i};
-    msToSkip = allSettings.sys.msToSkip;
-    
-    % Extract block of parameters for one signal from settings
-    signalSettings = allSettings.(signal);
-    
-    % Read RF Data
-    % Added new functions for channels
-    [pRfData,sampleCount] = getDataForAcquisition(signalSettings,100);
-    [pRfData2,sampleCount] = getDataForAcquisition2(signalSettings,100);  
-    [pRfData3,sampleCount] = getDataForAcquisition3(signalSettings,100);  
-    [pRfData4,sampleCount] = getDataForAcquisition4(signalSettings,100);  
-    
-    % Execute acquisition for one signal
-    acqResults.(signal) = acquireSignal(pRfData,signalSettings);
-    acqResults(2).(signal) = acquireSignal(pRfData2,signalSettings);
-    acqResults(3).(signal) = acquireSignal(pRfData3,signalSettings);
-    acqResults(4).(signal) = acquireSignal(pRfData4,signalSettings);
-    
+% Generate finger data
+[fingers,tR] = corrFingerGeneration(tR,ch);
+
+% Carrier generation + correlation and mixing with code signal
+tR = carrierMixing(tR,ch, rawSignal);
+
+% Check if user have requested multi correlator tracking
+if(tR.enableMultiCorrelatorTracking)    
+    tR = multiFingerTracking(tR,ch,fingers); % Generate fingers for multi finger tracking
+    if(mod(tR.channel(ch).loopCnt,tR.multiCorrelatorTrackingRate) == 0)
+        % Plot output
+        tR.channel(ch) = plotMultiFingerTracking(tR.channel(ch));
+    end
 end
 
+loopCnt = tR.channel(ch).loopCnt;
+
+% Check where we are in data file
+tR.channel(ch).absoluteSample(loopCnt) =(ftell(fid))/(tR.sampleSize/8);
+tR.channel(ch).prevAbsoluteSample =tR.channel(ch).absoluteSample(loopCnt);
 
 
 

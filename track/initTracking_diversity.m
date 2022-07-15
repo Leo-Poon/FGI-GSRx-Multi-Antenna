@@ -57,6 +57,7 @@ for i = 1:allSettings.sys.nrOfSignals
         if(acqResults.(signal).channel(k).bFound == true)
             trackChannel = allocateTrackChannelHeader(acqResults.(signal), k, allSettings);
             trackChannel = allocateTrackChannel(trackChannel,signalSettings);
+            % adds antNum to results
             trackChannel.antNum = acqResults.gpsl1.channel(k).antNum
             % Mode specific configuration
             if ((allSettings.sys.enableMultiCorrelatorTracking == true) && ...
