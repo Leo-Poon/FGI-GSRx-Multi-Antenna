@@ -31,11 +31,6 @@ function [tR]= GNSSCorrelation(tR, ch)
 
 % Set local variables
 fid = tR.fid;
-%add new channels
-fid2 = tR.fid2;
-fid3 = tR.fid3;
-fid4 = tR.fid4;
-
 loopCnt = tR.channel(ch).loopCnt;
 
 % Read RF data from file
